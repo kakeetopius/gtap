@@ -12,9 +12,8 @@ import (
 func main() {
 	_, err := argparser.ParseArgs(os.Args)
 	if err != nil {
-		if errors.Is(err, argparser.ErrHelp) {
-			return
+		if !errors.Is(err, argparser.ErrHelp) {
+			util.PrintError(err)
 		}
-		util.PrintError(err)
 	}
 }
