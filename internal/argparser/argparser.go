@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	_ "github.com/kakeetopius/gosnooper/internal/util"
 	"github.com/pterm/pterm"
 	"github.com/spf13/pflag"
 )

@@ -1,4 +1,4 @@
-module github.com/kakeetopius/gosnooper
+module github.com/kakeetopius/gtap
 
 go 1.25.5
 

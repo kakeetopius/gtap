@@ -5,8 +5,8 @@ import (
 	_ "fmt"
 	"os"
 
-	"github.com/kakeetopius/gosnooper/internal/argparser"
-	"github.com/kakeetopius/gosnooper/internal/util"
+	"github.com/kakeetopius/gtap/internal/argparser"
+	"github.com/kakeetopius/gtap/internal/util"
 )
 
 func main() {
