@@ -38,7 +38,7 @@ type Options struct {
 }
 
 func ParseArgs(args []string) (*Options, error) {
-	flagSet := pflag.NewFlagSet("gosnooper", pflag.ContinueOnError)
+	flagSet := pflag.NewFlagSet("gtap", pflag.ContinueOnError)
 	flagSet.Usage = Usage
 
 	argOptions := Options{}
@@ -103,7 +103,7 @@ func ParseArgs(args []string) (*Options, error) {
 }
 
 func Usage() {
-	description := "gsn is a simple command line utility to capture, decode and display packet data.\nBy Default if no options are given it captures all packets from all available network interfaces."
+	description := "gtap is a simple command line utility to capture, decode and display packet data.\nBy Default if no options are given it captures all packets from all available network interfaces."
 
 	usageStyle := pterm.NewStyle(pterm.FgBlue)
 	descriptionStyle := pterm.NewStyle(pterm.FgMagenta)
