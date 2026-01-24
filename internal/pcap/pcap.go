@@ -12,6 +12,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
 	"github.com/kakeetopius/gtap/internal/argparser"
+	"github.com/kakeetopius/gtap/internal/decoding"
 )
 
 func StartCapture(opts *argparser.Options) error {
@@ -35,6 +36,12 @@ func StartCapture(opts *argparser.Options) error {
 
 	if opts.Flags&argparser.OutputFileFlag != 0 {
 		return captureToFile(handle, opts.OutputFile)
+	}
+
+	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	packets := packetSource.Packets()
+	for packet := range packets {
+		decoding.DecodeDataLink(packet)
 	}
 	return nil
 }

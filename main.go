@@ -23,7 +23,6 @@ func main() {
 		util.PrintError(err)
 	}
 
-	// fmt.Println("──────────────────────────────────────────────")
 	// util.PrintProtocolHeader("Ethernet")
 	// util.PrintProtocolField("Src Mac", "00:22:44:66:88:aa")
 	// util.PrintProtocolField("Dst Mac", "aa:bb:cc:ee:ff:83")
