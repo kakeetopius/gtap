@@ -19,10 +19,10 @@ const (
 	AutoFlag
 	IfaceFlag
 	InputFileFlag
-	OutPutFileFlag
+	OutputFileFlag
 )
 
-type ArgHelp struct {
+type cliArg struct {
 	name        string
 	shorthand   string
 	placeholder string
@@ -44,16 +44,15 @@ func ParseArgs(args []string) (*Options, error) {
 	argOptions := Options{}
 	if len(args) < 2 {
 		argOptions.Flags |= CaptureAllFlag
-		fmt.Println("Capturing all packets")
 		return &argOptions, nil
 	}
 	auto := flagSet.BoolP("auto", "a", false, "")
 	filter := flagSet.StringP("filter", "f", "", "")
 	iface := flagSet.StringP("iface", "i", "", "")
+	writeFile := flagSet.StringP("write", "w", "", "")
+	readFile := flagSet.StringP("read", "r", "", "")
 	promisc := flagSet.BoolP("promisc", "p", false, "")
 	monitor := flagSet.BoolP("monitor", "m", false, "")
-	output := flagSet.StringP("write", "w", "", "")
-	input := flagSet.StringP("read", "r", "", "")
 
 	err := flagSet.Parse(args[1:])
 	if err != nil {
@@ -68,35 +67,32 @@ func ParseArgs(args []string) (*Options, error) {
 	}
 	if *auto {
 		argOptions.Flags |= AutoFlag
-		fmt.Println("Auto flag set")
 	}
 	if *promisc {
 		argOptions.Flags |= PromiscuousFlag
-		fmt.Println("Promisc flag set")
 	}
 	if *monitor {
 		argOptions.Flags |= MonitorFlag
-		fmt.Println("Monitor flag set")
 	}
 	if flagSet.Changed("filter") {
 		argOptions.Filter = *filter
 		argOptions.Flags |= FilterFlag
-		fmt.Println("Filter flag set")
 	}
 	if flagSet.Changed("iface") {
 		argOptions.IfaceName = *iface
 		argOptions.Flags |= IfaceFlag
-		fmt.Println("Iface flag set")
 	}
-	if flagSet.Changed("output") {
-		argOptions.OutputFile = *output
-		argOptions.Flags |= OutPutFileFlag
-		fmt.Println("Output flag set")
+	if flagSet.Changed("write") {
+		argOptions.OutputFile = *writeFile
+		argOptions.Flags |= OutputFileFlag
 	}
-	if flagSet.Changed("input") {
-		argOptions.InputFile = *input
+	if flagSet.Changed("read") {
+		argOptions.InputFile = *readFile
 		argOptions.Flags |= InputFileFlag
-		fmt.Println("Input flag set")
+	}
+	if !*auto && argOptions.Flags&IfaceFlag == 0 {
+		// if both auto and iface flags are not given we assume all packets are required.
+		argOptions.Flags |= CaptureAllFlag
 	}
 
 	return &argOptions, nil
@@ -110,18 +106,21 @@ func Usage() {
 	placeHolderStyle := pterm.NewStyle(pterm.FgYellow)
 
 	usageStyle.Printf("Usage: ")
-	pterm.Printf("gsn [OPTIONS]\n")
+	pterm.Printf("gtap [OPTIONS]\n")
 	usageStyle.Printf("\nDescription: ")
 	descriptionStyle.Printf("%s\n\n", description)
 
-	argHelp := []ArgHelp{
+	argHelp := []cliArg{
 		{"auto", "a", "", "Capture packets on the first non-loopback network interface found that is up and running."},
 		{"filter", "f", "FILTER", "A filter to apply on the packets captured on an interface. If --iface or --auto is not given the filter is applied on all interfaces"},
 		{"iface", "i", "IFACE", "A network interface to capture packets from only."},
 		{"promisc", "p", "", "Set promiscous mode on the interface."},
 		{"monitor", "m", "", "Set monitor mode. Only relevant for some wifi adapters."},
-		{"write", "w", "FILE", "Save captured packets to a pcap file."},
+		{"write", "w", "FILE", "Save captured packets to a pcap file. The file is first truncated to zero length"},
 		{"read", "r", "FILE", "Stream packets from a pcap file instead of a network interface."},
+		{"verbose", "v", "", "Print packet structures in an expanded form"},
+		{"hex", "H", "", "Dump a hex version of the packet data for debugging purposes."},
+		{"help", "h", "", "Show this help message."},
 	}
 
 	argNameStyle := pterm.NewStyle(pterm.FgCyan)
@@ -141,4 +140,5 @@ func Usage() {
 
 		fmt.Printf("\n")
 	}
+	fmt.Printf("\n")
 }

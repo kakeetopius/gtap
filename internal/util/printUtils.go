@@ -2,9 +2,30 @@
 package util
 
 import (
+	"fmt"
+
 	"github.com/pterm/pterm"
 )
 
 func PrintError(err error) {
 	pterm.Error.Printf("%v\n", err)
+}
+
+func PrintProtocolHeader(headerName string) {
+	headerStyle := pterm.NewStyle(pterm.FgYellow)
+	headerStyle.Printf("###[ %v ]###\n", headerName)
+	// fmt.Printf("###[ %v ]###\n", headerName)
+}
+
+func PrintProtocolField(fieldname, value string) {
+	fieldStyle := pterm.NewStyle(pterm.Bold)
+	valueStyle := pterm.NewStyle(pterm.FgDefault)
+
+	fieldStyle.Printf("  %v", fieldname)
+	if len(fieldname) < 6 {
+		fmt.Printf("\t\t= ")
+	} else {
+		fmt.Printf("\t= ")
+	}
+	valueStyle.Printf("%v\n", value)
 }
