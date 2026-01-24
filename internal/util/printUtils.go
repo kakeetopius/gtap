@@ -17,7 +17,7 @@ func PrintProtocolHeader(headerName string) {
 	// fmt.Printf("###[ %v ]###\n", headerName)
 }
 
-func PrintProtocolField(fieldname, value string) {
+func PrintProtocolField[T string | int](fieldname string, value T) {
 	fieldStyle := pterm.NewStyle(pterm.Bold)
 	valueStyle := pterm.NewStyle(pterm.FgDefault)
 

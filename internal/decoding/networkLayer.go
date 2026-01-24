@@ -20,14 +20,14 @@ func DecodeNetworkLayer(packet gopacket.Packet) {
 
 func decodeIPv4(packet *layers.IPv4) {
 	util.PrintProtocolHeader("IPv4")
-	util.PrintProtocolField("Version", util.Htonstr(int(packet.Version)))
-	util.PrintProtocolField("IHL", util.Htonstr(int(packet.IHL)))
-	util.PrintProtocolField("TOS", util.Htonstr(int(packet.TOS)))
-	util.PrintProtocolField("Len", util.Htonstr(int(packet.Length)))
-	util.PrintProtocolField("Flags", util.Htonstr(int(packet.Flags)))
-	util.PrintProtocolField("TTL", util.Htonstr(int(packet.TTL)))
+	util.PrintProtocolField("Version", util.Ntohs(int(packet.Version)))
+	util.PrintProtocolField("IHL", util.Ntohs(int(packet.IHL)))
+	util.PrintProtocolField("TOS", util.Ntohs(int(packet.TOS)))
+	util.PrintProtocolField("Len", util.Ntohs(int(packet.Length)))
+	util.PrintProtocolField("Flags", util.Ntohs(int(packet.Flags)))
+	util.PrintProtocolField("TTL", util.Ntohs(int(packet.TTL)))
 	util.PrintProtocolField("Protocol", packet.Protocol.String())
-	util.PrintProtocolField("Cheksum", util.Htonstr(int(packet.Checksum)))
+	util.PrintProtocolField("Cheksum", util.Ntohs(int(packet.Checksum)))
 	util.PrintProtocolField("Src IP", packet.SrcIP.String())
 	util.PrintProtocolField("Dst IP", packet.DstIP.String())
 }
@@ -35,8 +35,8 @@ func decodeIPv4(packet *layers.IPv4) {
 func decodeIPv6(packet *layers.IPv6) {
 	util.PrintProtocolHeader("IPv6")
 	util.PrintProtocolField("Traffic Class", string(packet.TrafficClass))
-	util.PrintProtocolField("Flow Label", util.Htonstr(int(packet.FlowLabel)))
-	util.PrintProtocolField("Len", util.Htonstr(int(packet.Length)))
+	util.PrintProtocolField("Flow Label", util.Ntohs(int(packet.FlowLabel)))
+	util.PrintProtocolField("Len", util.Ntohs(int(packet.Length)))
 	util.PrintProtocolField("Next Proto", packet.NextHeader.String())
 	util.PrintProtocolField("Src IP", packet.SrcIP.String())
 	util.PrintProtocolField("Dst IP", packet.DstIP.String())

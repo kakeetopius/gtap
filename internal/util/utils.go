@@ -5,12 +5,15 @@ import (
 	"strconv"
 )
 
-func Htons(num int) int {
+func Ntohs(num int) int {
 	var b [4]byte
-	binary.BigEndian.PutUint32(b[:], uint32(num))
-	return int(binary.BigEndian.Uint32(b[:]))
+	binary.LittleEndian.PutUint32(b[:], uint32(num))
+	return int(binary.LittleEndian.Uint32(b[:]))
 }
 
-func Htonstr(num int) string {
+func NumTostr(num int) string {
 	return string(strconv.Itoa(num))
 }
+
+// func Numtohex
+// func NumtoBin
