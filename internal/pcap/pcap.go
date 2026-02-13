@@ -29,9 +29,11 @@ func StartCapture(opts *argparser.Options) error {
 	}
 	defer handle.Close()
 
-	err = setUpFilter(handle, opts.Filter)
-	if err != nil {
-		return err
+	if opts.Flags&argparser.FilterFlag != 0 {
+		err = setUpFilter(handle, opts.Filter)
+		if err != nil {
+			return err
+		}
 	}
 
 	if opts.Flags&argparser.OutputFileFlag != 0 {

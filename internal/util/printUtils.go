@@ -7,6 +7,10 @@ import (
 	"github.com/pterm/pterm"
 )
 
+type printableTypes interface {
+	string | ~int | ~uint8 | ~uint16
+}
+
 func PrintError(err error) {
 	pterm.Error.Printf("%v\n", err)
 }
@@ -17,7 +21,7 @@ func PrintProtocolHeader(headerName string) {
 	// fmt.Printf("###[ %v ]###\n", headerName)
 }
 
-func PrintProtocolField[T string | int](fieldname string, value T) {
+func PrintProtocolField[T printableTypes](fieldname string, value T) {
 	fieldStyle := pterm.NewStyle(pterm.Bold)
 	valueStyle := pterm.NewStyle(pterm.FgDefault)
 
