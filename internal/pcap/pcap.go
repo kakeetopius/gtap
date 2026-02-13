@@ -7,6 +7,8 @@ package pcap
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
@@ -40,12 +42,21 @@ func StartCapture(opts *argparser.Options) error {
 		return captureToFile(handle, opts.OutputFile)
 	}
 
+	notifyChan := make(chan struct{})
+	go awaitSignal(notifyChan)
+
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	packets := packetSource.Packets()
-	for packet := range packets {
-		decoding.DecodeDataLink(packet)
+
+	startTime := time.Now()
+	for {
+		select {
+		case <-notifyChan:
+			return printStats(handle, startTime)
+		case packet := <-packets:
+			decoding.DecodeDataLink(packet)
+		}
 	}
-	return nil
 }
 
 func setUpHandle(opts *argparser.Options) (*pcap.Handle, error) {
@@ -153,4 +164,30 @@ func captureToFile(handle *pcap.Handle, fileName string) error {
 		writer.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
 	}
 	return err
+}
+
+func printStats(handle *pcap.Handle, startTime time.Time) error {
+	pcapStats, err := handle.Stats()
+	if err != nil {
+		return err
+	}
+
+	endTime := time.Now()
+	timeDiff := endTime.Sub(startTime)
+
+	fmt.Println("\n\n──────────────────────────────────────────────")
+	fmt.Printf("Packets Received: %v\n", pcapStats.PacketsReceived)
+	fmt.Printf("Packets Dropped: %v\n", pcapStats.PacketsDropped)
+	fmt.Printf("Capture Duration: %v\n", timeDiff.String())
+	return nil
+}
+
+func awaitSignal(notifyChan chan struct{}) {
+	signalChan := make(chan os.Signal, 1)
+
+	signal.Notify(signalChan, os.Interrupt)
+
+	<-signalChan
+	fmt.Println("Stopping Packet Capture..............")
+	notifyChan <- struct{}{}
 }
