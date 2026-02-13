@@ -9,6 +9,9 @@ import (
 )
 
 func DecodeNetworkLayer(packet gopacket.Packet) {
+	if packet == nil {
+		return
+	}
 	netLayer := packet.NetworkLayer()
 	ip4, ok := netLayer.(*layers.IPv4)
 	if ok {

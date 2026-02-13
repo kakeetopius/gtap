@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/google/gopacket"
@@ -20,9 +21,11 @@ import (
 func StartCapture(opts *argparser.Options) error {
 	var handle *pcap.Handle
 	var err error
+	var usingOfflineFile bool
 
 	if opts.Flags&argparser.InputFileFlag != 0 {
 		handle, err = setUpHandleFromFile(opts.InputFile)
+		usingOfflineFile = true
 	} else {
 		handle, err = setUpHandle(opts)
 	}
@@ -38,12 +41,12 @@ func StartCapture(opts *argparser.Options) error {
 		}
 	}
 
-	if opts.Flags&argparser.OutputFileFlag != 0 {
-		return captureToFile(handle, opts.OutputFile)
-	}
-
 	notifyChan := make(chan struct{})
 	go awaitSignal(notifyChan)
+
+	if opts.Flags&argparser.OutputFileFlag != 0 {
+		return captureToFile(handle, opts.OutputFile, notifyChan)
+	}
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	packets := packetSource.Packets()
@@ -52,8 +55,14 @@ func StartCapture(opts *argparser.Options) error {
 	for {
 		select {
 		case <-notifyChan:
-			return printStats(handle, startTime)
-		case packet := <-packets:
+			if !usingOfflineFile {
+				return printStats(handle, startTime)
+			}
+			return nil
+		case packet, ok := <-packets:
+			if !ok {
+				return nil
+			}
 			decoding.DecodeDataLink(packet)
 		}
 	}
@@ -131,6 +140,10 @@ func setUpHandle(opts *argparser.Options) (*pcap.Handle, error) {
 			return nil, err
 		}
 	}
+	err = handle.SetTimeout(500 * time.Millisecond)
+	if err != nil {
+		return nil, err
+	}
 	activeHandle, err := handle.Activate()
 	if err != nil {
 		return nil, err
@@ -149,7 +162,7 @@ func setUpFilter(handle *pcap.Handle, filter string) error {
 	return err
 }
 
-func captureToFile(handle *pcap.Handle, fileName string) error {
+func captureToFile(handle *pcap.Handle, fileName string, notifyChan chan struct{}) error {
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -160,10 +173,18 @@ func captureToFile(handle *pcap.Handle, fileName string) error {
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	packets := packetSource.Packets()
-	for packet := range packets {
-		writer.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+	startTime := time.Now()
+	for {
+		select {
+		case <-notifyChan:
+			return printStats(handle, startTime)
+		case packet, ok := <-packets:
+			if !ok {
+				return nil
+			}
+			writer.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+		}
 	}
-	return err
 }
 
 func printStats(handle *pcap.Handle, startTime time.Time) error {
@@ -185,7 +206,7 @@ func printStats(handle *pcap.Handle, startTime time.Time) error {
 func awaitSignal(notifyChan chan struct{}) {
 	signalChan := make(chan os.Signal, 1)
 
-	signal.Notify(signalChan, os.Interrupt)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGQUIT)
 
 	<-signalChan
 	fmt.Println("Stopping Packet Capture..............")

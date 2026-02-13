@@ -19,6 +19,9 @@ func DecodeDataLink(packet gopacket.Packet) {
 	if ok {
 		decodelinuxSLL(linuxsll)
 	}
+	if packet == nil {
+		return
+	}
 	DecodeNetworkLayer(packet)
 }
 

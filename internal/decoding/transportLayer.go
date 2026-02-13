@@ -7,6 +7,9 @@ import (
 )
 
 func DecodeTransportLayer(packet gopacket.Packet) {
+	if packet == nil {
+		return
+	}
 	transportLayer := packet.TransportLayer()
 	tcp, ok := transportLayer.(*layers.TCP)
 	if ok {
