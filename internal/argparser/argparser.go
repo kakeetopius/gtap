@@ -17,6 +17,8 @@ const (
 	PromiscuousFlag
 	MonitorFlag
 	AutoFlag
+	HexDumpFlag
+	SummaryFlag
 	IfaceFlag
 	InputFileFlag
 	OutputFileFlag
@@ -53,6 +55,8 @@ func ParseArgs(args []string) (*Options, error) {
 	readFile := flagSet.StringP("read", "r", "", "")
 	promisc := flagSet.BoolP("promisc", "p", false, "")
 	monitor := flagSet.BoolP("monitor", "m", false, "")
+	hexdump := flagSet.BoolP("hex", "H", false, "")
+	summary := flagSet.BoolP("summary", "s", false, "")
 
 	err := flagSet.Parse(args[1:])
 	if err != nil {
@@ -74,6 +78,12 @@ func ParseArgs(args []string) (*Options, error) {
 	if *monitor {
 		argOptions.Flags |= MonitorFlag
 	}
+	if *hexdump {
+		argOptions.Flags |= HexDumpFlag
+	}
+	if *summary {
+		argOptions.Flags |= SummaryFlag
+	}
 	if flagSet.Changed("filter") {
 		argOptions.Filter = *filter
 		argOptions.Flags |= FilterFlag
@@ -90,9 +100,13 @@ func ParseArgs(args []string) (*Options, error) {
 		argOptions.InputFile = *readFile
 		argOptions.Flags |= InputFileFlag
 	}
+
 	if !*auto && argOptions.Flags&IfaceFlag == 0 {
 		// if both auto and iface flags are not given we assume all packets are required.
 		argOptions.Flags |= CaptureAllFlag
+	}
+	if argOptions.Flags&SummaryFlag != 0 && argOptions.Flags&HexDumpFlag != 0 {
+		return nil, fmt.Errorf("cannot set both --summary and --hex flags")
 	}
 
 	return &argOptions, nil
@@ -118,8 +132,8 @@ func Usage() {
 		{"monitor", "m", "", "Set monitor mode. Only relevant for some wifi adapters."},
 		{"write", "w", "FILE", "Save captured packets to a pcap file. The file is first truncated to zero length"},
 		{"read", "r", "FILE", "Stream packets from a pcap file instead of a network interface."},
-		{"verbose", "v", "", "Print packet structures in an expanded form"},
-		{"hex", "H", "", "Dump a hex version of the packet data for debugging purposes."},
+		{"summary", "s", "", "Print packet structures in a summary form"},
+		{"hex", "H", "", "Dump a hex version of the packet data."},
 		{"help", "h", "", "Show this help message."},
 	}
 

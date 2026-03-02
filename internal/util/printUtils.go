@@ -3,6 +3,7 @@ package util
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/pterm/pterm"
 )
@@ -12,13 +13,13 @@ type printableTypes interface {
 }
 
 func PrintError(err error) {
-	pterm.Error.Printf("%v\n", err)
+	errorStr := pterm.Error.Sprintf("%v\n", err)
+	fmt.Fprintf(os.Stderr, "%v", errorStr)
 }
 
 func PrintProtocolHeader(headerName string) {
 	headerStyle := pterm.NewStyle(pterm.FgYellow)
 	headerStyle.Printf("###[ %v ]###\n", headerName)
-	// fmt.Printf("###[ %v ]###\n", headerName)
 }
 
 func PrintProtocolField[T printableTypes](fieldname string, value T) {

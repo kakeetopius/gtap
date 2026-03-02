@@ -1,7 +1,7 @@
 // Package pcap provides functions to interface with the gopacket/pcap library for example to set up pcap handle, capture packets.
 package pcap
 
-// TODO
+// TODO:
 // 9. Add Option for display format (summary, verbose, hexdump)
 
 import (
@@ -62,6 +62,13 @@ func StartCapture(opts *argparser.Options) error {
 		case packet, ok := <-packets:
 			if !ok {
 				return nil
+			}
+			if opts.Flags&argparser.HexDumpFlag != 0 {
+				fmt.Println(packet.Dump())
+				continue
+			} else if opts.Flags&argparser.SummaryFlag != 0 {
+				fmt.Println(packet.String())
+				continue
 			}
 			decoding.DecodeDataLink(packet)
 		}

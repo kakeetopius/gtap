@@ -13,14 +13,14 @@ func DecodeNetworkLayer(packet gopacket.Packet) {
 		return
 	}
 	netLayer := packet.NetworkLayer()
-	ip4, ok := netLayer.(*layers.IPv4)
-	if ok {
+	if ip4, ok := netLayer.(*layers.IPv4); ok {
 		decodeIPv4(ip4)
 	}
-	ip6, ok := netLayer.(*layers.IPv6)
-	if ok {
+
+	if ip6, ok := netLayer.(*layers.IPv6); ok {
 		decodeIPv6(ip6)
 	}
+
 	if arp := packet.Layer(layers.LayerTypeARP); arp != nil {
 		arpPacket := arp.(*layers.ARP)
 		decodeARP(arpPacket)
