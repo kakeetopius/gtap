@@ -34,11 +34,11 @@ func decodeIPv4(packet *layers.IPv4) {
 	util.PrintProtocolField("Version", packet.Version)
 	util.PrintProtocolField("IHL", packet.IHL)
 	util.PrintProtocolField("TOS", packet.TOS)
-	util.PrintProtocolField("Len", util.Ntohs(packet.Length))
+	util.PrintProtocolField("Len", packet.Length)
 	util.PrintProtocolField("Flags", util.NumtoBinStr(packet.Flags))
 	util.PrintProtocolField("TTL", packet.TTL)
 	util.PrintProtocolField("Protocol", packet.Protocol.String())
-	util.PrintProtocolField("Cheksum", util.NumtoHexStr(util.Ntohs(packet.Checksum)))
+	util.PrintProtocolField("Cheksum", util.NumtoHexStr(packet.Checksum))
 	util.PrintProtocolField("Src IP", packet.SrcIP.String())
 	util.PrintProtocolField("Dst IP", packet.DstIP.String())
 }
@@ -47,8 +47,8 @@ func decodeIPv6(packet *layers.IPv6) {
 	util.PrintProtocolHeader("IPv6")
 	util.PrintProtocolField("Version", packet.Version)
 	util.PrintProtocolField("Traffic Class", packet.TrafficClass)
-	util.PrintProtocolField("Flow Label", util.Ntohs(packet.FlowLabel))
-	util.PrintProtocolField("Len", util.Ntohs(packet.Length))
+	util.PrintProtocolField("Flow Label", packet.FlowLabel)
+	util.PrintProtocolField("Len", packet.Length)
 	util.PrintProtocolField("Next Proto", packet.NextHeader.String())
 	util.PrintProtocolField("Hop Limit", packet.HopLimit)
 	util.PrintProtocolField("Src IP", packet.SrcIP.String())
@@ -57,11 +57,10 @@ func decodeIPv6(packet *layers.IPv6) {
 
 func decodeARP(packet *layers.ARP) {
 	util.PrintProtocolHeader("ARP")
-	opcode := util.Ntohs(packet.Operation)
-	var opcodetxt string
+	opcode := packet.Operation
 	switch opcode {
 	case 1:
-		opcodetxt = "1 Request"
+		opcodetxt := "1 Request"
 		util.PrintProtocolField("Opcode", opcodetxt)
 		util.PrintProtocolField("Who is", net.IP(packet.DstProtAddress).String())
 		util.PrintProtocolField("Tell", net.IP(packet.SourceProtAddress).String())
@@ -71,7 +70,7 @@ func decodeARP(packet *layers.ARP) {
 		util.PrintProtocolField("Proto type", packet.Protocol.String())
 		util.PrintProtocolField("Proto size", packet.ProtAddressSize)
 	case 2:
-		opcodetxt = "2 Response"
+		opcodetxt := "2 Response"
 		util.PrintProtocolField("Opcode", opcodetxt)
 		util.PrintProtocolField("IP", net.IP(packet.SourceProtAddress).String())
 		util.PrintProtocolField("Is At", net.HardwareAddr(packet.SourceHwAddress).String())

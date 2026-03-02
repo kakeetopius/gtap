@@ -9,7 +9,7 @@ import (
 )
 
 type printableTypes interface {
-	string | ~int | ~uint8 | ~uint16
+	string | ~int | ~uint8 | ~uint16 | ~uint32 | bool
 }
 
 func PrintError(err error) {
@@ -28,9 +28,16 @@ func PrintProtocolField[T printableTypes](fieldname string, value T) {
 
 	fieldStyle.Printf("  %v", fieldname)
 	if len(fieldname) < 6 {
+		fmt.Printf("\t\t\t= ")
+	} else if len(fieldname) < 14 {
 		fmt.Printf("\t\t= ")
 	} else {
 		fmt.Printf("\t= ")
 	}
 	valueStyle.Printf("%v\n", value)
+}
+
+func PrintProtocolHeader2(headerName string) {
+	headerStyle := pterm.NewStyle(pterm.Bold)
+	headerStyle.Printf("*** %v ***\n", headerName)
 }

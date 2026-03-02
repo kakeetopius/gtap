@@ -17,6 +17,7 @@ func DecodeTransportLayer(packet gopacket.Packet) {
 	if udp, ok := transportLayer.(*layers.UDP); ok {
 		decodeUDP(udp)
 	}
+	decodeApplicationLayer(packet)
 }
 
 func decodeTCP(packet *layers.TCP) {
@@ -29,15 +30,15 @@ func decodeTCP(packet *layers.TCP) {
 	}
 	util.PrintProtocolField("Src Port", packet.SrcPort.String())
 	util.PrintProtocolField("Dst Port", packet.DstPort.String())
-	util.PrintProtocolField("Seq No", util.Ntohs(packet.Seq))
-	util.PrintProtocolField("Ack Num", util.Ntohs(packet.Ack))
-	util.PrintProtocolField("Checksum", util.NumtoHexStr(util.Ntohs(packet.Checksum)))
+	util.PrintProtocolField("Seq No", packet.Seq)
+	util.PrintProtocolField("Ack Num", packet.Ack)
+	util.PrintProtocolField("Checksum", util.NumtoHexStr(packet.Checksum))
 }
 
 func decodeUDP(packet *layers.UDP) {
 	util.PrintProtocolHeader("UDP")
 	util.PrintProtocolField("Src Port", packet.SrcPort.String())
 	util.PrintProtocolField("Dst Port", packet.DstPort.String())
-	util.PrintProtocolField("Length", util.Ntohs(packet.Length))
-	util.PrintProtocolField("Checksum", util.NumtoHexStr(util.Ntohs(packet.Checksum)))
+	util.PrintProtocolField("Length", packet.Length)
+	util.PrintProtocolField("Checksum", util.NumtoHexStr(packet.Checksum))
 }
