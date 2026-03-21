@@ -74,3 +74,5 @@ sudo make install
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+Powered by [Google's gopacket](https://github.com/google/gopacket)
