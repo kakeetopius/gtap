@@ -13,9 +13,10 @@ func DecodeTransportLayer(packet gopacket.Packet) {
 	transportLayer := packet.TransportLayer()
 	if tcp, ok := transportLayer.(*layers.TCP); ok {
 		decodeTCP(tcp)
-	}
-	if udp, ok := transportLayer.(*layers.UDP); ok {
+	} else if udp, ok := transportLayer.(*layers.UDP); ok {
 		decodeUDP(udp)
+	} else {
+		return
 	}
 	decodeApplicationLayer(packet)
 }

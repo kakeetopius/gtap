@@ -16,9 +16,10 @@ func DecodeDataLink(packet gopacket.Packet) {
 	linklayer := packet.LinkLayer()
 	if ethernetPacket, ok := linklayer.(*layers.Ethernet); ok {
 		decodeEthernet(ethernetPacket)
-	}
-	if linuxsll, ok := linklayer.(*layers.LinuxSLL); ok {
+	} else if linuxsll, ok := linklayer.(*layers.LinuxSLL); ok {
 		decodelinuxSLL(linuxsll)
+	} else {
+		return
 	}
 	DecodeNetworkLayer(packet)
 }

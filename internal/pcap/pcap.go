@@ -1,8 +1,5 @@
-// Package pcap provides functions to interface with the gopacket/pcap library for example to set up pcap handle, capture packets.
+// Package pcap provides functions to interface with the gopacket/pcap library.
 package pcap
-
-// TODO:
-// 9. Add Option for display format (summary, verbose, hexdump)
 
 import (
 	"fmt"

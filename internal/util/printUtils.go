@@ -9,7 +9,7 @@ import (
 )
 
 type printableTypes interface {
-	string | ~int | ~uint8 | ~uint16 | ~uint32 | bool
+	string | ~int | ~uint8 | ~uint16 | ~uint32 | ~bool
 }
 
 func PrintError(err error) {
