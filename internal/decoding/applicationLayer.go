@@ -6,7 +6,6 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/kakeetopius/gtap/internal/util"
-	// "github.com/kakeetopius/gtap/internal/util"
 )
 
 func decodeApplicationLayer(packet gopacket.Packet) {
@@ -71,32 +70,10 @@ func decodeDNS(packet *layers.DNS) {
 		util.PrintProtocolField("Class", answer.Class.String())
 		util.PrintProtocolField("TTL", answer.TTL)
 		util.PrintProtocolField("Data Len", answer.DataLength)
-		util.PrintProtocolField("Record", answer.String())
+		record := answer.String()
+		if answer.Type == layers.DNSTypeMX {
+			record = fmt.Sprintf("MX %s (Pref %v)", answer.MX.Name, answer.MX.Preference)
+		}
+		util.PrintProtocolField("Record", record)
 	}
-
-	// if len(packet.Authorities) > 0 {
-	// 	util.PrintProtocolHeader("DNSNS")
-	// }
-	// for i, authority := range packet.Authorities {
-	// 	util.PrintProtocolHeader2(fmt.Sprintf("Response %v", i+1))
-	// 	util.PrintProtocolField("Name", string(authority.Name))
-	// 	util.PrintProtocolField("Type", authority.Type.String())
-	// 	util.PrintProtocolField("Class", authority.Class.String())
-	// 	util.PrintProtocolField("TTL", authority.TTL)
-	// 	util.PrintProtocolField("Data Len", authority.DataLength)
-	// 	util.PrintProtocolField("Record", authority.String())
-	// }
-	//
-	// if len(packet.Additionals) > 0 {
-	// 	util.PrintProtocolHeader("DNSAD")
-	// }
-	// for i, additionals := range packet.Additionals {
-	// 	util.PrintProtocolHeader2(fmt.Sprintf("Response %v", i+1))
-	// 	util.PrintProtocolField("Name", string(additionals.Name))
-	// 	util.PrintProtocolField("Type", additionals.Type.String())
-	// 	util.PrintProtocolField("Class", additionals.Class.String())
-	// 	util.PrintProtocolField("TTL", additionals.TTL)
-	// 	util.PrintProtocolField("Data Len", additionals.DataLength)
-	// 	util.PrintProtocolField("Record", additionals.String())
-	// }
 }
