@@ -34,7 +34,7 @@ A lightweight command-line packet capture and analysis utility written in Go. Ca
 ### From Source
 
 ```sh
-git clone https://github.com/yourusername/gtap.git
+git clone https://github.com/kakeetopius/gtap.git
 cd gtap
 go build -o gtap .
 
