@@ -9,7 +9,6 @@ A lightweight command-line packet capture and analysis utility written in Go. Ca
 - [Installation](#installation)
 - [Usage](#usage)
 - [Examples](#examples)
-- [Output Formats](#output-formats)
 - [Filters](#filters)
 - [License](#license)
 
