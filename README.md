@@ -1,6 +1,6 @@
 # gtap
 
-A lightweight command-line packet capture and analysis utility written in Go. Capture live network traffic, read pcap files, apply filters, and export data in multiple formats.
+A lightweight command-line packet capture and analysis utility written in Go. Capture live network traffic, read pcap files, apply filters, and display data in multiple formats.
 
 ## Table of Contents
 
