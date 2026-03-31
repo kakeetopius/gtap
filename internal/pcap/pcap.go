@@ -203,7 +203,7 @@ func printStats(handle *pcap.Handle, startTime time.Time) error {
 	fmt.Println("\n\n──────────────────────────────────────────────")
 	fmt.Printf("Packets Received: %v\n", pcapStats.PacketsReceived)
 	fmt.Printf("Packets Dropped: %v\n", pcapStats.PacketsDropped)
-	fmt.Printf("Capture Duration: %v\n", timeDiff.String())
+	fmt.Printf("Capture Duration: %v\n", timeDiff.Truncate(time.Millisecond).String())
 	return nil
 }
 
