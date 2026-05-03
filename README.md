@@ -20,6 +20,7 @@ A lightweight command-line packet capture and analysis utility written in Go. Ca
 - **Multiple output formats**: summary view and hex dumps
 - **Promiscuous and monitor modes** for advanced packet capture
 - **Scriptable CLI** with sensible defaults
+- **Cross Platform**. Works on Linux, Windows and MacOS.
 
 ## Requirements
 
@@ -28,6 +29,7 @@ A lightweight command-line packet capture and analysis utility written in Go. Ca
   - Debian/Ubuntu: `libpcap-dev`
   - Fedora/CentOS: `libpcap-devel`
   - macOS: `libpcap` (via Homebrew)
+  - Windows: npcap which can be obtained [here](https://npcap.com/#download).
 
 ## Installation
 
@@ -38,8 +40,14 @@ git clone https://github.com/kakeetopius/gtap.git
 cd gtap
 go build -o gtap .
 
-#OR install to path
+#OR install to path on linux
 sudo make install
+```
+
+OR install directly from github with Go. Make sure GOBIN is part of the PATH.
+
+```sh
+go install github.com/kakeetopius/gtap@latest
 ```
 
 ## Usage
