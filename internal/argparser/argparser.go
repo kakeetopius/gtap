@@ -113,7 +113,7 @@ func ParseArgs(args []string) (*Options, error) {
 }
 
 func Usage() {
-	description := "gtap is a simple command line utility to capture, decode and display packet data.\nBy Default if no options are given it captures all packets from all available network interfaces."
+	description := "gtap is a simple command line utility to capture, decode and display packet data.\nBy Default on unix systems if no options are given it captures all packets from all available network interfaces."
 
 	usageStyle := pterm.NewStyle(pterm.FgBlue)
 	descriptionStyle := pterm.NewStyle(pterm.FgMagenta)
@@ -125,8 +125,8 @@ func Usage() {
 	descriptionStyle.Printf("%s\n\n", description)
 
 	argHelp := []cliArg{
-		{"auto", "a", "", "Capture packets on the first non-loopback network interface found that is up and running."},
-		{"filter", "f", "FILTER", "A filter to apply on the packets captured on an interface. If --iface or --auto is not given the filter is applied on all interfaces"},
+		{"auto", "a", "", "Capture packets on the first non-loopback network interface found that is up and running. Not supported on Windows."},
+		{"filter", "f", "FILTER", "A filter to apply on the packets captured on an interface."},
 		{"iface", "i", "IFACE", "A network interface to capture packets from only."},
 		{"promisc", "p", "", "Set promiscous mode on the interface."},
 		{"monitor", "m", "", "Set monitor mode. Only relevant for some wifi adapters."},
