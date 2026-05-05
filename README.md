@@ -19,7 +19,6 @@ A lightweight command-line packet capture and analysis utility written in Go. Ca
 - **Pcap file support** for reading and writing packet data
 - **Multiple output formats**: summary view and hex dumps
 - **Promiscuous and monitor modes** for advanced packet capture
-- **Scriptable CLI** with sensible defaults
 - **Cross Platform**. Works on Linux, Windows and MacOS.
 
 ## Requirements
@@ -44,7 +43,7 @@ go build -o gtap .
 sudo make install
 ```
 
-OR install directly from github with Go. Make sure GOBIN is part of the PATH.
+OR install directly from github with Go. Make sure GOBIN is part of the shell's PATH.
 
 ```sh
 go install github.com/kakeetopius/gtap@latest
@@ -56,7 +55,7 @@ go install github.com/kakeetopius/gtap@latest
 gtap [OPTIONS]
 ```
 
-By default, `gtap` captures all packets from all available network interfaces.
+If no interface is specified, the user is presented with a list of available network interfaces on the system and prompted to select one.
 
 ### Options
 
@@ -73,25 +72,25 @@ By default, `gtap` captures all packets from all available network interfaces.
 
 ## Examples
 
-**Capture all packets:**
+**Capture all packets on the selected interface**
 
 ```sh
 gtap
 ```
 
-**Capture from eth0 in promiscuous mode and save:**
+**Capture from eth0 in promiscuous mode and save to a pcap file:**
 
 ```sh
 gtap -i eth0 -p --write capture.pcap
 ```
 
-**Read and analyze a pcap file:**
+**Read and analyze a pcap file and output packets in summary form:**
 
 ```sh
 gtap --read capture.pcap --summary
 ```
 
-**Display hex dump of captured packets:**
+**Display a hex dump of captured packets:**
 
 ```sh
 gtap --read capture.pcap --hex
@@ -111,7 +110,7 @@ gtap -i eth0 -f "tcp port 443" --write secure.pcap
 
 ## Filters
 
-BPF (Berkeley Packet Filter) syntax is supported. Common examples:
+[BPF (Berkeley Packet Filter) syntax](https://biot.com/capstats/bpf.html) is supported. Common examples:
 
 - `tcp port 80` - HTTP traffic
 - `udp port 53` - DNS queries
