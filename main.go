@@ -6,13 +6,14 @@ import (
 
 	"github.com/kakeetopius/gtap/internal/argparser"
 	"github.com/kakeetopius/gtap/internal/pcap"
+	"github.com/kakeetopius/gtap/internal/tui"
 	"github.com/kakeetopius/gtap/internal/util"
 )
 
 func main() {
 	opts, err := argparser.ParseArgs(os.Args)
 	if err != nil {
-		if !errors.Is(err, argparser.ErrHelp) {
+		if !errors.Is(err, argparser.ErrHelp) && !errors.Is(err, tui.ErrUserQuit) {
 			util.PrintError(err)
 		}
 		return

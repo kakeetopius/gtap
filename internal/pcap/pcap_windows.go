@@ -5,26 +5,22 @@ import (
 	"net"
 	"net/netip"
 	"slices"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/google/gopacket/pcap"
-	"github.com/kakeetopius/gtap/internal/argparser"
+	"github.com/kakeetopius/gtap/internal/tui"
 )
-
-type Interface struct {
-	PcapName string
-	net.Interface
-}
 
 // go: build windows
 
-// When sending and receiving packets on windows, pcap is used instead of the raw sockets that are available on linux only.
-// The pcap library on windows requires some special names for the interface which can only be gotten via the pcap.FindAllDevs() function which returns pcap.Interface structs
-// but these structs returned by pcap.FindAllDevs() do not contain all information for example the interfaces' hardware address, index etc.
-// So these functions help to connect the two: pcap.Interface and net.Interface via the only common data that can be got from both -> their IP addresses.
+// On windows the pcap.FindAllDevs() returns a slice of structs of type pcap.Interface. But the name field in those structs is not the normal name of the interface for
+// example "Wi-Fi" or "Ethernet 1", they are special strings that pcap uses internally. Therefore it is difficult to match such interface names like "Wi-Fi" by using
+// just the pcap.Interface struct. But the net.Interface struct returned by net.Interfaces() does contain such names.
+// Therefore these functions help to connect the two: pcap.Interface and net.Interface via the only common data that can be got from the two -> the ip addresses.
+// This then will allow a user to specify an interface by it's usual name e.g. "Wi-Fi" but at the same time supply to pcap the name that it expects.
 
-func setUpHandle(opts *argparser.Options) (*pcap.Handle, error) {
+func setUpHandle(opts Options) (*pcap.Handle, error) {
 	pcapIfaces, err := pcap.FindAllDevs()
 	if err != nil {
 		return nil, err
@@ -38,13 +34,13 @@ func setUpHandle(opts *argparser.Options) (*pcap.Handle, error) {
 		return nil, fmt.Errorf("could not find any network interfaces")
 	}
 
-	var ifaceIndex int
-	if opts.Flags&argparser.IfaceFlag != 0 {
+	var ifaceToUse Interface
+	if opts.IfaceName != "" {
 		// If an interface was explicitly given
 		ifaceFound := false
-		for index, iface := range netIfaces {
+		for _, iface := range netIfaces {
 			if iface.Name == opts.IfaceName {
-				ifaceIndex = index
+				ifaceToUse = iface
 				ifaceFound = true
 				break
 			}
@@ -53,34 +49,33 @@ func setUpHandle(opts *argparser.Options) (*pcap.Handle, error) {
 			return nil, fmt.Errorf("could not find interface: %v", opts.IfaceName)
 		}
 	} else {
-		stringBuilder := strings.Builder{}
-		stringBuilder.WriteString("Please Provide an interface to use.\nThe following are the available interfaces on the system\n")
-		for i, iface := range netIfaces {
-			fmt.Fprintf(&stringBuilder, "%v. %v\n", i+1, iface.Name)
+		// if no interface was given, prompt the user to select one.
+		fmt.Println("Please Provide an interface to use.\nThe following are the available interfaces on the system")
+		ifaceToUse, err = getInterfaceSelection(netIfaces)
+		if err != nil {
+			return nil, err
 		}
-		fmt.Println(stringBuilder.String())
-		return nil, fmt.Errorf("interface not given")
 	}
 
-	fmt.Println("Interface to use: ", netIfaces[ifaceIndex].Name)
-	handle, err := pcap.NewInactiveHandle(netIfaces[ifaceIndex].PcapName)
+	fmt.Println("Interface to use: ", ifaceToUse.Name)
+	handle, err := pcap.NewInactiveHandle(ifaceToUse.PcapName)
 	if err != nil {
 		return nil, err
 	}
 	// Setting different options as specified by user.
-	if opts.Flags&argparser.PromiscuousFlag != 0 {
+	if opts.Flags.IsSet(PromiscuousFlag) {
 		err = handle.SetPromisc(true)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if opts.Flags&argparser.MonitorFlag != 0 {
+	if opts.Flags.IsSet(MonitorFlag) {
 		err = handle.SetRFMon(true)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if opts.Flags&argparser.FilterFlag != 0 {
+	if opts.Filter != "" {
 		// if filter is given we set to immediate mode
 		err = handle.SetImmediateMode(true)
 		if err != nil {
@@ -182,4 +177,35 @@ func IPNetToPrefix(ipnet *net.IPNet) (netip.Prefix, error) {
 	ones, _ := ipnet.Mask.Size()
 
 	return netip.PrefixFrom(addr, ones), nil
+}
+
+func getInterfaceSelection(ifaces []Interface) (Interface, error) {
+	columns := []tui.TableColumn{
+		{Title: "Index", Width: 5},
+		{Title: "Name", Width: 40},
+	}
+
+	rows := make([]tui.TableRow, 0, len(ifaces))
+	for _, iface := range ifaces {
+		rows = append(rows, []string{
+			strconv.Itoa(iface.Index),
+			iface.Name,
+		})
+	}
+
+	selectedInterfaceIndex, err := tui.GetTableSelection(rows, columns, 0)
+	if err != nil {
+		return Interface{}, err
+	}
+	return interfaceByIndex(ifaces, selectedInterfaceIndex)
+}
+
+func interfaceByIndex(ifaces []Interface, index string) (Interface, error) {
+	for _, iface := range ifaces {
+		if strconv.Itoa(iface.Index) == index {
+			return iface, nil
+		}
+	}
+
+	return Interface{}, fmt.Errorf("could not get interface")
 }

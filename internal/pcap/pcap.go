@@ -11,16 +11,15 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
-	"github.com/kakeetopius/gtap/internal/argparser"
 	"github.com/kakeetopius/gtap/internal/decoding"
 )
 
-func StartCapture(opts *argparser.Options) error {
+func StartCapture(opts Options) error {
 	var handle *pcap.Handle
 	var err error
 	var usingOfflineFile bool
 
-	if opts.Flags&argparser.InputFileFlag != 0 {
+	if opts.InputFile != "" {
 		handle, err = setUpHandleFromFile(opts.InputFile)
 		usingOfflineFile = true
 	} else {
@@ -31,7 +30,7 @@ func StartCapture(opts *argparser.Options) error {
 	}
 	defer handle.Close()
 
-	if opts.Flags&argparser.FilterFlag != 0 {
+	if opts.Filter != "" {
 		err = setUpFilter(handle, opts.Filter)
 		if err != nil {
 			return err
@@ -41,7 +40,7 @@ func StartCapture(opts *argparser.Options) error {
 	notifyChan := make(chan struct{})
 	go awaitSignal(notifyChan)
 
-	if opts.Flags&argparser.OutputFileFlag != 0 {
+	if opts.OutputFile != "" {
 		return captureToFile(handle, opts.OutputFile, notifyChan)
 	}
 
@@ -60,10 +59,10 @@ func StartCapture(opts *argparser.Options) error {
 			if !ok {
 				return nil
 			}
-			if opts.Flags&argparser.HexDumpFlag != 0 {
+			if opts.Flags.IsSet(HexDumpFlag) {
 				fmt.Println(packet.Dump())
 				continue
-			} else if opts.Flags&argparser.SummaryFlag != 0 {
+			} else if opts.Flags.IsSet(SummaryFlag) {
 				fmt.Println(packet.String())
 				continue
 			}
