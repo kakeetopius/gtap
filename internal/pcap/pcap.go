@@ -12,6 +12,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
 	"github.com/kakeetopius/gtap/internal/decoding"
+	"github.com/pterm/pterm"
 )
 
 func StartCapture(opts Options) error {
@@ -77,7 +78,7 @@ func setUpHandleFromFile(fileName string) (*pcap.Handle, error) {
 }
 
 func setUpFilter(handle *pcap.Handle, filter string) error {
-	fmt.Printf("Using filter: %v\n", filter)
+	pterm.Info.Printf("Using filter: %v\n", filter)
 	err := handle.SetBPFFilter(filter)
 	return err
 }
@@ -87,7 +88,7 @@ func captureToFile(handle *pcap.Handle, fileName string, notifyChan chan struct{
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Capturing to file: %v\n", fileName)
+	pterm.Info.Printf("Capturing to file: %v\n", fileName)
 	writer := pcapgo.NewWriter(file)
 	writer.WriteFileHeader(uint32(handle.SnapLen()), handle.LinkType())
 
@@ -129,6 +130,6 @@ func awaitSignal(notifyChan chan struct{}) {
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGQUIT)
 
 	<-signalChan
-	fmt.Println("Stopping Packet Capture..............")
+	pterm.NewStyle(pterm.FgRed, pterm.Bold).Println("Stopping Packet Capture..............")
 	notifyChan <- struct{}{}
 }

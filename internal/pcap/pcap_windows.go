@@ -5,11 +5,10 @@ import (
 	"net"
 	"net/netip"
 	"slices"
-	"strconv"
 	"time"
 
 	"github.com/google/gopacket/pcap"
-	"github.com/kakeetopius/gtap/internal/tui"
+	"github.com/pterm/pterm"
 )
 
 // go: build windows
@@ -31,7 +30,7 @@ func setUpHandle(opts Options) (*pcap.Handle, error) {
 	}
 
 	if len(netIfaces) < 1 {
-		return nil, fmt.Errorf("could not find any network interfaces")
+		return nil, fmt.Errorf("could not find any network interfaces on the system")
 	}
 
 	var ifaceToUse Interface
@@ -50,14 +49,14 @@ func setUpHandle(opts Options) (*pcap.Handle, error) {
 		}
 	} else {
 		// if no interface was given, prompt the user to select one.
-		fmt.Println("Please Provide an interface to use.\nThe following are the available interfaces on the system")
+		pterm.NewStyle(pterm.Bold).Println("Please Provide an interface to use.\nThe following are the available interfaces on the system.")
 		ifaceToUse, err = getInterfaceSelection(netIfaces)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	fmt.Println("Interface to use: ", ifaceToUse.Name)
+	pterm.Info.Println("Interface to use: ", ifaceToUse.Name)
 	handle, err := pcap.NewInactiveHandle(ifaceToUse.PcapName)
 	if err != nil {
 		return nil, err
@@ -93,6 +92,7 @@ func setUpHandle(opts Options) (*pcap.Handle, error) {
 	return activeHandle, nil
 }
 
+// InterfaceSliceFromPcapInterfaceSlice converts from []pcap.Interface to slice of Interface struct defined in this package.
 func InterfaceSliceFromPcapInterfaceSlice(pcapIfaces []pcap.Interface) ([]Interface, error) {
 	allIfaces := make([]Interface, 0, len(pcapIfaces))
 
@@ -105,6 +105,7 @@ func InterfaceSliceFromPcapInterfaceSlice(pcapIfaces []pcap.Interface) ([]Interf
 		allIfaces = append(allIfaces, Interface{
 			PcapName:  pcapIface.Name,
 			Interface: netIface,
+			PcapDesc:  pcapIface.Description,
 		})
 	}
 
@@ -155,57 +156,4 @@ func netInterfaceFromAddrs(givenAddrs []netip.Prefix) (net.Interface, error) {
 		}
 	}
 	return net.Interface{}, fmt.Errorf("could not get net.Interface")
-}
-
-// IPNetToPrefix converts a net.IPNet value into its netip.Prefix equivalent.
-//
-// It returns an error when the IP in ipnet cannot be converted to a valid
-// netip.Addr.
-func IPNetToPrefix(ipnet *net.IPNet) (netip.Prefix, error) {
-	ip := ipnet.IP
-
-	// Check to see if the ipnet is IPv4 and if so change the slice to a 4 byte slice to allow AddrFromSlice to return correct representation
-	if ip4 := ip.To4(); ip4 != nil {
-		ip = ip4
-	}
-
-	addr, ok := netip.AddrFromSlice(ip)
-	if !ok {
-		return netip.Prefix{}, fmt.Errorf("invalid IPNet")
-	}
-
-	ones, _ := ipnet.Mask.Size()
-
-	return netip.PrefixFrom(addr, ones), nil
-}
-
-func getInterfaceSelection(ifaces []Interface) (Interface, error) {
-	columns := []tui.TableColumn{
-		{Title: "Index", Width: 5},
-		{Title: "Name", Width: 40},
-	}
-
-	rows := make([]tui.TableRow, 0, len(ifaces))
-	for _, iface := range ifaces {
-		rows = append(rows, []string{
-			strconv.Itoa(iface.Index),
-			iface.Name,
-		})
-	}
-
-	selectedInterfaceIndex, err := tui.GetTableSelection(rows, columns, 0)
-	if err != nil {
-		return Interface{}, err
-	}
-	return interfaceByIndex(ifaces, selectedInterfaceIndex)
-}
-
-func interfaceByIndex(ifaces []Interface, index string) (Interface, error) {
-	for _, iface := range ifaces {
-		if strconv.Itoa(iface.Index) == index {
-			return iface, nil
-		}
-	}
-
-	return Interface{}, fmt.Errorf("could not get interface")
 }

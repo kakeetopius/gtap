@@ -10,7 +10,7 @@ const (
 	// put capturing interface in monitor mode
 	MonitorFlag
 	// automatically use the first non loopback interface found on the system to capture packets
-	AutoIfaceFlag
+	SelectIfaceFlag
 	// display packets in hex form
 	HexDumpFlag
 	// display packets in summary form
@@ -41,5 +41,6 @@ type Options struct {
 
 type Interface struct {
 	PcapName string
+	PcapDesc string
 	net.Interface
 }
