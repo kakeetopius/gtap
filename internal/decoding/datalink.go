@@ -13,6 +13,12 @@ func DecodeDataLink(packet gopacket.Packet) {
 	if packet == nil {
 		return
 	}
+
+	md := packet.Metadata()
+	fmt.Println("─────────────────────────────────────────────────────────────────")
+	util.PrintProtocolField("Capture Time", md.Timestamp.String())
+	util.PrintProtocolField("Packet Length", md.Length)
+
 	linklayer := packet.LinkLayer()
 	if ethernetPacket, ok := linklayer.(*layers.Ethernet); ok {
 		decodeEthernet(ethernetPacket)
@@ -25,7 +31,6 @@ func DecodeDataLink(packet gopacket.Packet) {
 }
 
 func decodeEthernet(packet *layers.Ethernet) {
-	fmt.Println("──────────────────────────────────────────────")
 	util.PrintProtocolHeader("Ethernet")
 	util.PrintProtocolField("Src Mac", packet.SrcMAC.String())
 	util.PrintProtocolField("Dst Mac", packet.DstMAC.String())
@@ -33,7 +38,6 @@ func decodeEthernet(packet *layers.Ethernet) {
 }
 
 func decodelinuxSLL(packet *layers.LinuxSLL) {
-	fmt.Println("──────────────────────────────────────────────")
 	util.PrintProtocolHeader("Linux Cooked Packet")
 	addr := packet.Addr.String()
 	if addr == "" {

@@ -24,7 +24,7 @@ func ParseArgs(args []string) (pcap.Options, error) {
 	monitor := flagSet.BoolP("monitor", "m", false, "Set monitor mode on the interface. Only relevant for some wifi adapters.")
 	writeFile := flagSet.StringP("write", "w", "", "Save captured packets to a pcap file. The file is first truncated to zero length")
 	readFile := flagSet.StringP("read", "r", "", "Stream packets from a pcap file instead of a network interface.")
-	summary := flagSet.BoolP("summary", "S", false, "Print packet structures in a summary form")
+	summary := flagSet.BoolP("summary", "s", false, "Print packet structures in a summary form")
 	hexdump := flagSet.BoolP("hex", "H", false, "Dump a hex version of the packet data.")
 
 	flagSet.Usage = Usage(flagSet.FlagUsages())
