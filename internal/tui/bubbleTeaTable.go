@@ -56,7 +56,6 @@ func GetTableSelection(rows []TableRow, cols []TableColumn, idenifierColumnIndex
 		return "", fmt.Errorf("could not get interface")
 	}
 	if finalModel.userQuit {
-		fmt.Println("User quit")
 		return "", ErrUserQuit
 	}
 
@@ -88,7 +87,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			m.userQuit = true
-			fmt.Println("User quit")
 			return m, tea.Quit
 		case "enter":
 			m.selectedRowID = m.table.SelectedRow()[m.identifierColumn]
@@ -111,7 +109,7 @@ func setUpTable(columns []table.Column, rows []table.Row, idenifierIndex int) (t
 		return nil, fmt.Errorf("table rows empty")
 	}
 
-	tableHeight := min(len(columns)+2, 10)
+	tableHeight := min(len(rows)+2, 10)
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),

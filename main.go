@@ -12,14 +12,20 @@ import (
 
 func main() {
 	opts, err := argparser.ParseArgs(os.Args)
-	if err != nil {
-		if !errors.Is(err, argparser.ErrHelp) && !errors.Is(err, tui.ErrUserQuit) {
-			util.PrintError(err)
-		}
-		return
-	}
+	checkErr(err)
+
 	err = pcap.StartCapture(opts)
+	checkErr(err)
+}
+
+func checkErr(err error) {
 	if err != nil {
-		util.PrintError(err)
+		returnCode := 0
+		if !errors.Is(err, argparser.ErrHelp) && !errors.Is(err, tui.ErrUserQuit) {
+			// no need to print to error message for the above
+			util.PrintError(err)
+			returnCode = -1
+		}
+		os.Exit(returnCode)
 	}
 }
