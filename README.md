@@ -54,8 +54,8 @@ go install github.com/kakeetopius/gtap@latest
 ```
 gtap [OPTIONS]
 ```
-
-If no interface is specified, the user is presented with a list of available network interfaces on the system and prompted to select one.
+> [!NOTE]
+> If no interface is specified, the user is presented with a list of available network interfaces on the system and prompted to select one.
 
 ### Options
 
@@ -67,7 +67,7 @@ If no interface is specified, the user is presented with a list of available net
 | `-m`        | Enable monitor mode                               |
 | `--read`    | Read packets from pcap file                       |
 | `--write`   | Save captured packets to pcap file                |
-| `--summary` | Display packet summary (default)                  |
+| `--summary` | Display packet summary.                           |
 | `--hex`     | Display packet data as hex dump                   |
 
 ## Examples
