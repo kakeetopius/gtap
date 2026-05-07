@@ -9,7 +9,7 @@ const (
 	PromiscuousFlag
 	// put capturing interface in monitor mode
 	MonitorFlag
-	// automatically use the first non loopback interface found on the system to capture packets
+	// display interfaces on the system and allow the user to select one.
 	SelectIfaceFlag
 	// display packets in hex form
 	HexDumpFlag
